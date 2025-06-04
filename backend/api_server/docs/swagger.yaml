@@ -1,0 +1,265 @@
+basePath: /api
+definitions:
+  dto.ApiModelRequest:
+    description: Start modeling request params
+    properties:
+      dataset_id:
+        example: 1
+        type: integer
+      gpu_ids:
+        example:
+        - 1
+        items:
+          type: integer
+        type: array
+      image_size:
+        example: 512
+        type: integer
+      target_metric:
+        example: image_f1_score
+        type: string
+    type: object
+  dto.DatasetRootForAPI:
+    description: dataset root information for edit
+    properties:
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Test 1
+        type: string
+      path:
+        example: /data1
+        type: string
+    type: object
+  dto.DatasetRootRequest:
+    description: dataset root information for add
+    properties:
+      name:
+        example: Test Datasets
+        type: string
+      path:
+        example: /data
+        type: string
+    type: object
+  dto.ModelRequest:
+    description: Model request params
+    properties:
+      gpu_id:
+        example: 1
+        type: integer
+      model_id:
+        example: 1
+        type: integer
+    type: object
+info:
+  contact: {}
+  title: KAI.S API document
+  version: 1.11.1
+paths:
+  /data:
+    get:
+      description: Get dataset root paths
+      responses:
+        "200":
+          description: OK
+      tags:
+      - system
+    post:
+      consumes:
+      - application/json
+      description: Post dataset root path
+      parameters:
+      - description: dataset root information
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DatasetRootRequest'
+      responses:
+        "200":
+          description: OK
+      tags:
+      - system
+    put:
+      consumes:
+      - application/json
+      description: Put dataset root path
+      parameters:
+      - description: dataset root information
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DatasetRootForAPI'
+      responses:
+        "200":
+          description: OK
+      tags:
+      - system
+  /data/{datasetroot_id}:
+    delete:
+      description: Delete dataset root path
+      parameters:
+      - description: datasetroot_id
+        in: path
+        name: datasetroot_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      tags:
+      - system
+  /device/gpus:
+    get:
+      description: Get GPU list
+      responses:
+        "200":
+          description: OK
+      tags:
+      - system
+  /sys:
+    get:
+      description: Get System information
+      responses:
+        "200":
+          description: OK
+      tags:
+      - system
+  /vcls_ml/inference:
+    post:
+      description: Start File Test
+      parameters:
+      - description: gpu_id
+        in: formData
+        name: gpu_id
+        required: true
+        type: string
+      - description: threshold
+        in: formData
+        name: threshold
+        required: true
+        type: string
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Inference
+  /vcls_ml/load:
+    post:
+      consumes:
+      - application/json
+      description: Post Load AI Model into GPU
+      parameters:
+      - description: load model parameters
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ModelRequest'
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Inference
+  /vcls_ml/load/{gpu_id}:
+    delete:
+      description: Post Unload AI Model from GPU
+      parameters:
+      - description: gpu_id
+        in: path
+        name: gpu_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Inference
+  /vcls_ml/load/list:
+    get:
+      description: Get loadded model
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Inference
+  /vcls_ml/logs/{modeling_id}:
+    get:
+      description: recent modeling logs
+      parameters:
+      - description: modeling_id
+        in: path
+        name: modeling_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Modeling
+  /vcls_ml/modeling:
+    post:
+      consumes:
+      - application/json
+      description: Start Modeling
+      parameters:
+      - description: modeling parameters
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ApiModelRequest'
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Modeling
+  /vcls_ml/modeling/{modeling_id}:
+    delete:
+      description: Stop Modeling
+      parameters:
+      - description: modeling_id
+        in: path
+        name: modeling_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Modeling
+  /vcls_ml/modeling/{modeling_id}/{threshold}:
+    get:
+      description: modeling detail information
+      parameters:
+      - description: modeling_id
+        in: path
+        name: modeling_id
+        required: true
+        type: integer
+      - description: 0.1 or 0.2 or 0.3 or 0.4 or 0.5
+        in: path
+        name: threshold
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Modeling
+  /vcls_ml/modeling/list:
+    get:
+      description: modeling list
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Modeling
+swagger: "2.0"

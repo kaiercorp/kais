@@ -1,0 +1,28 @@
+export const QUERY_KEY = {
+    projects: 'projects',
+    configurations: 'configurations',
+    login: 'login',
+    logout: 'logout',
+    fetchDirectories: 'fetchDirectories',
+    fetchDatasets: 'fetchDatasets',
+    fetchTrial: 'fetchTrial',
+    fetchTrials: 'fetchTrials',
+    fetchTrainModels: 'fetchTrainModels',
+    createTrain: 'createTrain',
+    fetchChartData: 'fetchChartData',
+    deleteTrials: 'deleteTrials',
+    stopTrain: 'stopTrain',
+    stopTest: 'stopTest',
+    createTestFile: 'createTestFile',
+    createTestDirectory: 'createTestDirectory',
+    getRowFromFile: 'getRowFromFile',
+    fetchTrialCompare: 'fetchTrialCompare',
+    downloadFile: 'downloadFile',
+    fetchMenu: 'fetchMenu',
+    updateMenu: 'updateMenu',
+    hpo: 'hpo',
+    dataset_root: 'dataset_root',
+    dataset: 'dataset',
+}
+
+export type QueryKeyType = typeof QUERY_KEY[keyof typeof QUERY_KEY]

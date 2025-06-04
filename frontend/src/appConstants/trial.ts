@@ -1,0 +1,31 @@
+export const engine: any = {
+    vision_cls_sl: 'vision-cls-sl',
+    vision_cls_ml: 'vision-cls-ml',
+    vision_seg: 'vision-seg',
+    vision_od: 'vision-od',
+    vision_ocr: 'vision-ocr',
+    vision_ad: 'vision-ad',
+    table_cls: 'table-cls',
+    table_reg: 'table-reg',
+    ts_ad: 'ts-ad',
+    ts_df: 'ts-df',
+}
+
+export const getMetricKey: any = {
+    'uwa': 'uwa',
+    'wa': 'wa',
+    'recall': 'recall',
+    'precision': 'precision',
+    'f1': 'f1',
+    'mse': 'MSE',
+    'rmse': 'RMSE',
+    'mae': 'MAE',
+    'image_accuracy': 'image_accuracy',
+    'image_f1_score': 'image_f1_score',
+    'image_precision': 'image_precision',
+    'image_recall': 'image_recall',
+    'label_accuracy': 'label_accuracy',
+    'label_f1_score': 'label_f1_score',
+    'label_precision': 'label_precision',
+    'label_recall': 'label_recall',
+}
