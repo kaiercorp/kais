@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,7 +62,7 @@ func (hphq *HyperParamsHistoryQuery) Order(o ...hyperparamshistory.OrderOption) 
 // First returns the first HyperParamsHistory entity from the query.
 // Returns a *NotFoundError when no HyperParamsHistory was found.
 func (hphq *HyperParamsHistoryQuery) First(ctx context.Context) (*HyperParamsHistory, error) {
-	nodes, err := hphq.Limit(1).All(setContextOp(ctx, hphq.ctx, "First"))
+	nodes, err := hphq.Limit(1).All(setContextOp(ctx, hphq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (hphq *HyperParamsHistoryQuery) FirstX(ctx context.Context) *HyperParamsHis
 // Returns a *NotFoundError when no HyperParamsHistory ID was found.
 func (hphq *HyperParamsHistoryQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = hphq.Limit(1).IDs(setContextOp(ctx, hphq.ctx, "FirstID")); err != nil {
+	if ids, err = hphq.Limit(1).IDs(setContextOp(ctx, hphq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -107,7 +108,7 @@ func (hphq *HyperParamsHistoryQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one HyperParamsHistory entity is found.
 // Returns a *NotFoundError when no HyperParamsHistory entities are found.
 func (hphq *HyperParamsHistoryQuery) Only(ctx context.Context) (*HyperParamsHistory, error) {
-	nodes, err := hphq.Limit(2).All(setContextOp(ctx, hphq.ctx, "Only"))
+	nodes, err := hphq.Limit(2).All(setContextOp(ctx, hphq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (hphq *HyperParamsHistoryQuery) OnlyX(ctx context.Context) *HyperParamsHist
 // Returns a *NotFoundError when no entities are found.
 func (hphq *HyperParamsHistoryQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = hphq.Limit(2).IDs(setContextOp(ctx, hphq.ctx, "OnlyID")); err != nil {
+	if ids, err = hphq.Limit(2).IDs(setContextOp(ctx, hphq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -160,7 +161,7 @@ func (hphq *HyperParamsHistoryQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of HyperParamsHistories.
 func (hphq *HyperParamsHistoryQuery) All(ctx context.Context) ([]*HyperParamsHistory, error) {
-	ctx = setContextOp(ctx, hphq.ctx, "All")
+	ctx = setContextOp(ctx, hphq.ctx, ent.OpQueryAll)
 	if err := hphq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -182,7 +183,7 @@ func (hphq *HyperParamsHistoryQuery) IDs(ctx context.Context) (ids []int, err er
 	if hphq.ctx.Unique == nil && hphq.path != nil {
 		hphq.Unique(true)
 	}
-	ctx = setContextOp(ctx, hphq.ctx, "IDs")
+	ctx = setContextOp(ctx, hphq.ctx, ent.OpQueryIDs)
 	if err = hphq.Select(hyperparamshistory.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -200,7 +201,7 @@ func (hphq *HyperParamsHistoryQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (hphq *HyperParamsHistoryQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, hphq.ctx, "Count")
+	ctx = setContextOp(ctx, hphq.ctx, ent.OpQueryCount)
 	if err := hphq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -218,7 +219,7 @@ func (hphq *HyperParamsHistoryQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (hphq *HyperParamsHistoryQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, hphq.ctx, "Exist")
+	ctx = setContextOp(ctx, hphq.ctx, ent.OpQueryExist)
 	switch _, err := hphq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -251,8 +252,9 @@ func (hphq *HyperParamsHistoryQuery) Clone() *HyperParamsHistoryQuery {
 		inters:     append([]Interceptor{}, hphq.inters...),
 		predicates: append([]predicate.HyperParamsHistory{}, hphq.predicates...),
 		// clone intermediate query.
-		sql:  hphq.sql.Clone(),
-		path: hphq.path,
+		sql:       hphq.sql.Clone(),
+		path:      hphq.path,
+		modifiers: append([]func(*sql.Selector){}, hphq.modifiers...),
 	}
 }
 
@@ -465,7 +467,7 @@ func (hphgb *HyperParamsHistoryGroupBy) Aggregate(fns ...AggregateFunc) *HyperPa
 
 // Scan applies the selector query and scans the result into the given value.
 func (hphgb *HyperParamsHistoryGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, hphgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, hphgb.build.ctx, ent.OpQueryGroupBy)
 	if err := hphgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -513,7 +515,7 @@ func (hphs *HyperParamsHistorySelect) Aggregate(fns ...AggregateFunc) *HyperPara
 
 // Scan applies the selector query and scans the result into the given value.
 func (hphs *HyperParamsHistorySelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, hphs.ctx, "Select")
+	ctx = setContextOp(ctx, hphs.ctx, ent.OpQuerySelect)
 	if err := hphs.prepareQuery(ctx); err != nil {
 		return err
 	}

@@ -71,12 +71,10 @@ type ModelingEdges struct {
 // TaskOrErr returns the Task value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ModelingEdges) TaskOrErr() (*Task, error) {
-	if e.loadedTypes[0] {
-		if e.Task == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: task.Label}
-		}
+	if e.Task != nil {
 		return e.Task, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: task.Label}
 	}
 	return nil, &NotLoadedError{edge: "task"}
 }

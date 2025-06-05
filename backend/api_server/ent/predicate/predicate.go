@@ -27,6 +27,9 @@ type Gpu func(*sql.Selector)
 // HyperParamsHistory is the predicate function for hyperparamshistory builders.
 type HyperParamsHistory func(*sql.Selector)
 
+// Menu is the predicate function for menu builders.
+type Menu func(*sql.Selector)
+
 // Modeling is the predicate function for modeling builders.
 type Modeling func(*sql.Selector)
 

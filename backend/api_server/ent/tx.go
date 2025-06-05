@@ -28,6 +28,8 @@ type Tx struct {
 	Gpu *GpuClient
 	// HyperParamsHistory is the client for interacting with the HyperParamsHistory builders.
 	HyperParamsHistory *HyperParamsHistoryClient
+	// Menu is the client for interacting with the Menu builders.
+	Menu *MenuClient
 	// Modeling is the client for interacting with the Modeling builders.
 	Modeling *ModelingClient
 	// ModelingDetails is the client for interacting with the ModelingDetails builders.
@@ -188,6 +190,7 @@ func (tx *Tx) init() {
 	tx.EngineLog = NewEngineLogClient(tx.config)
 	tx.Gpu = NewGpuClient(tx.config)
 	tx.HyperParamsHistory = NewHyperParamsHistoryClient(tx.config)
+	tx.Menu = NewMenuClient(tx.config)
 	tx.Modeling = NewModelingClient(tx.config)
 	tx.ModelingDetails = NewModelingDetailsClient(tx.config)
 	tx.ModelingModels = NewModelingModelsClient(tx.config)

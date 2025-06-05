@@ -74,12 +74,10 @@ type DatasetEdges struct {
 // DatasetrootOrErr returns the Datasetroot value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e DatasetEdges) DatasetrootOrErr() (*DatasetRoot, error) {
-	if e.loadedTypes[0] {
-		if e.Datasetroot == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: datasetroot.Label}
-		}
+	if e.Datasetroot != nil {
 		return e.Datasetroot, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: datasetroot.Label}
 	}
 	return nil, &NotLoadedError{edge: "datasetroot"}
 }

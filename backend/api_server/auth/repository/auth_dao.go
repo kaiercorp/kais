@@ -17,6 +17,7 @@ type IAuthDAO interface {
 	SelectByToken(ctx context.Context, token string) (*ent.User, error)
 	UpdateLogin(ctx context.Context, req *ent.User) (*ent.User, error)
 	UpdateLogout(ctx context.Context, req LogoutRequest) error
+	SelectUserByToken(ctx context.Context, token string) (*ent.User, *logger.Report)
 }
 
 type AuthDAO struct {
@@ -81,4 +82,19 @@ func (dao *AuthDAO) UpdateLogout(ctx context.Context, req LogoutRequest) error {
 		).
 		SetToken("").
 		Exec(ctx)
+}
+
+func (dao *AuthDAO) SelectUserByToken(ctx context.Context, token string) (*ent.User, *logger.Report) {
+	user, err := dao.dbms.User.
+		Query().
+		Where(
+			user.Token(token),
+		).
+		Only(ctx)
+
+	if err != nil {
+		return user, logger.CreateReport(&logger.CODE_TOKEN_EXPIRED, err)
+	}
+
+	return user, nil
 }

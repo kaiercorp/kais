@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -85,7 +86,7 @@ func (mmq *ModelingModelsQuery) QueryModeling() *ModelingQuery {
 // First returns the first ModelingModels entity from the query.
 // Returns a *NotFoundError when no ModelingModels was found.
 func (mmq *ModelingModelsQuery) First(ctx context.Context) (*ModelingModels, error) {
-	nodes, err := mmq.Limit(1).All(setContextOp(ctx, mmq.ctx, "First"))
+	nodes, err := mmq.Limit(1).All(setContextOp(ctx, mmq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +109,7 @@ func (mmq *ModelingModelsQuery) FirstX(ctx context.Context) *ModelingModels {
 // Returns a *NotFoundError when no ModelingModels ID was found.
 func (mmq *ModelingModelsQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = mmq.Limit(1).IDs(setContextOp(ctx, mmq.ctx, "FirstID")); err != nil {
+	if ids, err = mmq.Limit(1).IDs(setContextOp(ctx, mmq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -131,7 +132,7 @@ func (mmq *ModelingModelsQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one ModelingModels entity is found.
 // Returns a *NotFoundError when no ModelingModels entities are found.
 func (mmq *ModelingModelsQuery) Only(ctx context.Context) (*ModelingModels, error) {
-	nodes, err := mmq.Limit(2).All(setContextOp(ctx, mmq.ctx, "Only"))
+	nodes, err := mmq.Limit(2).All(setContextOp(ctx, mmq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +160,7 @@ func (mmq *ModelingModelsQuery) OnlyX(ctx context.Context) *ModelingModels {
 // Returns a *NotFoundError when no entities are found.
 func (mmq *ModelingModelsQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = mmq.Limit(2).IDs(setContextOp(ctx, mmq.ctx, "OnlyID")); err != nil {
+	if ids, err = mmq.Limit(2).IDs(setContextOp(ctx, mmq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -184,7 +185,7 @@ func (mmq *ModelingModelsQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of ModelingModelsSlice.
 func (mmq *ModelingModelsQuery) All(ctx context.Context) ([]*ModelingModels, error) {
-	ctx = setContextOp(ctx, mmq.ctx, "All")
+	ctx = setContextOp(ctx, mmq.ctx, ent.OpQueryAll)
 	if err := mmq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ func (mmq *ModelingModelsQuery) IDs(ctx context.Context) (ids []int, err error) 
 	if mmq.ctx.Unique == nil && mmq.path != nil {
 		mmq.Unique(true)
 	}
-	ctx = setContextOp(ctx, mmq.ctx, "IDs")
+	ctx = setContextOp(ctx, mmq.ctx, ent.OpQueryIDs)
 	if err = mmq.Select(modelingmodels.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -224,7 +225,7 @@ func (mmq *ModelingModelsQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (mmq *ModelingModelsQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, mmq.ctx, "Count")
+	ctx = setContextOp(ctx, mmq.ctx, ent.OpQueryCount)
 	if err := mmq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -242,7 +243,7 @@ func (mmq *ModelingModelsQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (mmq *ModelingModelsQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, mmq.ctx, "Exist")
+	ctx = setContextOp(ctx, mmq.ctx, ent.OpQueryExist)
 	switch _, err := mmq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -276,8 +277,9 @@ func (mmq *ModelingModelsQuery) Clone() *ModelingModelsQuery {
 		predicates:   append([]predicate.ModelingModels{}, mmq.predicates...),
 		withModeling: mmq.withModeling.Clone(),
 		// clone intermediate query.
-		sql:  mmq.sql.Clone(),
-		path: mmq.path,
+		sql:       mmq.sql.Clone(),
+		path:      mmq.path,
+		modifiers: append([]func(*sql.Selector){}, mmq.modifiers...),
 	}
 }
 
@@ -544,7 +546,7 @@ func (mmgb *ModelingModelsGroupBy) Aggregate(fns ...AggregateFunc) *ModelingMode
 
 // Scan applies the selector query and scans the result into the given value.
 func (mmgb *ModelingModelsGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, mmgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, mmgb.build.ctx, ent.OpQueryGroupBy)
 	if err := mmgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -592,7 +594,7 @@ func (mms *ModelingModelsSelect) Aggregate(fns ...AggregateFunc) *ModelingModels
 
 // Scan applies the selector query and scans the result into the given value.
 func (mms *ModelingModelsSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, mms.ctx, "Select")
+	ctx = setContextOp(ctx, mms.ctx, ent.OpQuerySelect)
 	if err := mms.prepareQuery(ctx); err != nil {
 		return err
 	}

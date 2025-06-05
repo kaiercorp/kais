@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,7 +62,7 @@ func (elq *EngineLogQuery) Order(o ...enginelog.OrderOption) *EngineLogQuery {
 // First returns the first EngineLog entity from the query.
 // Returns a *NotFoundError when no EngineLog was found.
 func (elq *EngineLogQuery) First(ctx context.Context) (*EngineLog, error) {
-	nodes, err := elq.Limit(1).All(setContextOp(ctx, elq.ctx, "First"))
+	nodes, err := elq.Limit(1).All(setContextOp(ctx, elq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (elq *EngineLogQuery) FirstX(ctx context.Context) *EngineLog {
 // Returns a *NotFoundError when no EngineLog ID was found.
 func (elq *EngineLogQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = elq.Limit(1).IDs(setContextOp(ctx, elq.ctx, "FirstID")); err != nil {
+	if ids, err = elq.Limit(1).IDs(setContextOp(ctx, elq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -107,7 +108,7 @@ func (elq *EngineLogQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one EngineLog entity is found.
 // Returns a *NotFoundError when no EngineLog entities are found.
 func (elq *EngineLogQuery) Only(ctx context.Context) (*EngineLog, error) {
-	nodes, err := elq.Limit(2).All(setContextOp(ctx, elq.ctx, "Only"))
+	nodes, err := elq.Limit(2).All(setContextOp(ctx, elq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (elq *EngineLogQuery) OnlyX(ctx context.Context) *EngineLog {
 // Returns a *NotFoundError when no entities are found.
 func (elq *EngineLogQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = elq.Limit(2).IDs(setContextOp(ctx, elq.ctx, "OnlyID")); err != nil {
+	if ids, err = elq.Limit(2).IDs(setContextOp(ctx, elq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -160,7 +161,7 @@ func (elq *EngineLogQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of EngineLogs.
 func (elq *EngineLogQuery) All(ctx context.Context) ([]*EngineLog, error) {
-	ctx = setContextOp(ctx, elq.ctx, "All")
+	ctx = setContextOp(ctx, elq.ctx, ent.OpQueryAll)
 	if err := elq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -182,7 +183,7 @@ func (elq *EngineLogQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if elq.ctx.Unique == nil && elq.path != nil {
 		elq.Unique(true)
 	}
-	ctx = setContextOp(ctx, elq.ctx, "IDs")
+	ctx = setContextOp(ctx, elq.ctx, ent.OpQueryIDs)
 	if err = elq.Select(enginelog.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -200,7 +201,7 @@ func (elq *EngineLogQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (elq *EngineLogQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, elq.ctx, "Count")
+	ctx = setContextOp(ctx, elq.ctx, ent.OpQueryCount)
 	if err := elq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -218,7 +219,7 @@ func (elq *EngineLogQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (elq *EngineLogQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, elq.ctx, "Exist")
+	ctx = setContextOp(ctx, elq.ctx, ent.OpQueryExist)
 	switch _, err := elq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -251,8 +252,9 @@ func (elq *EngineLogQuery) Clone() *EngineLogQuery {
 		inters:     append([]Interceptor{}, elq.inters...),
 		predicates: append([]predicate.EngineLog{}, elq.predicates...),
 		// clone intermediate query.
-		sql:  elq.sql.Clone(),
-		path: elq.path,
+		sql:       elq.sql.Clone(),
+		path:      elq.path,
+		modifiers: append([]func(*sql.Selector){}, elq.modifiers...),
 	}
 }
 
@@ -465,7 +467,7 @@ func (elgb *EngineLogGroupBy) Aggregate(fns ...AggregateFunc) *EngineLogGroupBy 
 
 // Scan applies the selector query and scans the result into the given value.
 func (elgb *EngineLogGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, elgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, elgb.build.ctx, ent.OpQueryGroupBy)
 	if err := elgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -513,7 +515,7 @@ func (els *EngineLogSelect) Aggregate(fns ...AggregateFunc) *EngineLogSelect {
 
 // Scan applies the selector query and scans the result into the given value.
 func (els *EngineLogSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, els.ctx, "Select")
+	ctx = setContextOp(ctx, els.ctx, ent.OpQuerySelect)
 	if err := els.prepareQuery(ctx); err != nil {
 		return err
 	}

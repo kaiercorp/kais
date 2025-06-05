@@ -52,11 +52,6 @@ var (
 	CODE_MODELING_IN_PROGRESS      = State{Code: "MR001", Message: "There's something in progress"}
 	CODE_MODELING_DEVICE_NOT_EXIST = State{Code: "MR002", Message: "There's nothing usable devices"}
 
-	CODE_LICENSE_FAIL         = State{Code: "LI0001", Message: "Invalid license"}
-	CODE_LICENSE_EXPIRED      = State{Code: "LI0002", Message: "Expired"}
-	CODE_LICENSE_UNAUTHORIZED = State{Code: "LI0003", Message: "Not allowed"}
-	CODE_LICENSE_UNKNOWN      = State{Code: "LI9999", Message: "lincense error"}
-
 	ERROR_CODE_SSH_ERROR = State{Code: "7001", Message: "Failed to find gpu"}
 	CODE_TAPI_SUCCESS    = State{Code: "0000", Message: "Success"}
 )

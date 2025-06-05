@@ -10,6 +10,7 @@ import (
 	"api_server/ent/enginelog"
 	"api_server/ent/gpu"
 	"api_server/ent/hyperparamshistory"
+	"api_server/ent/menu"
 	"api_server/ent/modeling"
 	"api_server/ent/modelingdetails"
 	"api_server/ent/modelingmodels"
@@ -86,7 +87,7 @@ var (
 	columnCheck sql.ColumnCheck
 )
 
-// columnChecker checks if the column exists in the given table.
+// checkColumn checks if the column exists in the given table.
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
@@ -97,6 +98,7 @@ func checkColumn(table, column string) error {
 			enginelog.Table:          enginelog.ValidColumn,
 			gpu.Table:                gpu.ValidColumn,
 			hyperparamshistory.Table: hyperparamshistory.ValidColumn,
+			menu.Table:               menu.ValidColumn,
 			modeling.Table:           modeling.ValidColumn,
 			modelingdetails.Table:    modelingdetails.ValidColumn,
 			modelingmodels.Table:     modelingmodels.ValidColumn,

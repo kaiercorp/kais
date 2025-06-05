@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,7 +62,7 @@ func (tsq *TrialStatusQuery) Order(o ...trialstatus.OrderOption) *TrialStatusQue
 // First returns the first TrialStatus entity from the query.
 // Returns a *NotFoundError when no TrialStatus was found.
 func (tsq *TrialStatusQuery) First(ctx context.Context) (*TrialStatus, error) {
-	nodes, err := tsq.Limit(1).All(setContextOp(ctx, tsq.ctx, "First"))
+	nodes, err := tsq.Limit(1).All(setContextOp(ctx, tsq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (tsq *TrialStatusQuery) FirstX(ctx context.Context) *TrialStatus {
 // Returns a *NotFoundError when no TrialStatus ID was found.
 func (tsq *TrialStatusQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = tsq.Limit(1).IDs(setContextOp(ctx, tsq.ctx, "FirstID")); err != nil {
+	if ids, err = tsq.Limit(1).IDs(setContextOp(ctx, tsq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -107,7 +108,7 @@ func (tsq *TrialStatusQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one TrialStatus entity is found.
 // Returns a *NotFoundError when no TrialStatus entities are found.
 func (tsq *TrialStatusQuery) Only(ctx context.Context) (*TrialStatus, error) {
-	nodes, err := tsq.Limit(2).All(setContextOp(ctx, tsq.ctx, "Only"))
+	nodes, err := tsq.Limit(2).All(setContextOp(ctx, tsq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (tsq *TrialStatusQuery) OnlyX(ctx context.Context) *TrialStatus {
 // Returns a *NotFoundError when no entities are found.
 func (tsq *TrialStatusQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = tsq.Limit(2).IDs(setContextOp(ctx, tsq.ctx, "OnlyID")); err != nil {
+	if ids, err = tsq.Limit(2).IDs(setContextOp(ctx, tsq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -160,7 +161,7 @@ func (tsq *TrialStatusQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of TrialStatusSlice.
 func (tsq *TrialStatusQuery) All(ctx context.Context) ([]*TrialStatus, error) {
-	ctx = setContextOp(ctx, tsq.ctx, "All")
+	ctx = setContextOp(ctx, tsq.ctx, ent.OpQueryAll)
 	if err := tsq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -182,7 +183,7 @@ func (tsq *TrialStatusQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if tsq.ctx.Unique == nil && tsq.path != nil {
 		tsq.Unique(true)
 	}
-	ctx = setContextOp(ctx, tsq.ctx, "IDs")
+	ctx = setContextOp(ctx, tsq.ctx, ent.OpQueryIDs)
 	if err = tsq.Select(trialstatus.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -200,7 +201,7 @@ func (tsq *TrialStatusQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (tsq *TrialStatusQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, tsq.ctx, "Count")
+	ctx = setContextOp(ctx, tsq.ctx, ent.OpQueryCount)
 	if err := tsq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -218,7 +219,7 @@ func (tsq *TrialStatusQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (tsq *TrialStatusQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, tsq.ctx, "Exist")
+	ctx = setContextOp(ctx, tsq.ctx, ent.OpQueryExist)
 	switch _, err := tsq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -251,8 +252,9 @@ func (tsq *TrialStatusQuery) Clone() *TrialStatusQuery {
 		inters:     append([]Interceptor{}, tsq.inters...),
 		predicates: append([]predicate.TrialStatus{}, tsq.predicates...),
 		// clone intermediate query.
-		sql:  tsq.sql.Clone(),
-		path: tsq.path,
+		sql:       tsq.sql.Clone(),
+		path:      tsq.path,
+		modifiers: append([]func(*sql.Selector){}, tsq.modifiers...),
 	}
 }
 
@@ -465,7 +467,7 @@ func (tsgb *TrialStatusGroupBy) Aggregate(fns ...AggregateFunc) *TrialStatusGrou
 
 // Scan applies the selector query and scans the result into the given value.
 func (tsgb *TrialStatusGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, tsgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, tsgb.build.ctx, ent.OpQueryGroupBy)
 	if err := tsgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -513,7 +515,7 @@ func (tss *TrialStatusSelect) Aggregate(fns ...AggregateFunc) *TrialStatusSelect
 
 // Scan applies the selector query and scans the result into the given value.
 func (tss *TrialStatusSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, tss.ctx, "Select")
+	ctx = setContextOp(ctx, tss.ctx, ent.OpQuerySelect)
 	if err := tss.prepareQuery(ctx); err != nil {
 		return err
 	}

@@ -21,6 +21,7 @@ import (
 	dataset_router "api_server/dataset/router"
 	device_router "api_server/device/router"
 	download_router "api_server/download/router"
+	menu_router "api_server/menu/router"
 	project_router "api_server/project/router"
 	tapi_router "api_server/tapi/router"
 	task_router "api_server/task/router"
@@ -104,6 +105,7 @@ func main() {
 	ws_router.InitWebSocketRouter(r)
 	user_router.InitRouter(r)
 	tapi_router.InitRouter(r)
+	menu_router.InitRouter(r)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.File("./frontend/index.html")

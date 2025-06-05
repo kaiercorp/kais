@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -86,7 +87,7 @@ func (dq *DatasetQuery) QueryDatasetroot() *DatasetRootQuery {
 // First returns the first Dataset entity from the query.
 // Returns a *NotFoundError when no Dataset was found.
 func (dq *DatasetQuery) First(ctx context.Context) (*Dataset, error) {
-	nodes, err := dq.Limit(1).All(setContextOp(ctx, dq.ctx, "First"))
+	nodes, err := dq.Limit(1).All(setContextOp(ctx, dq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (dq *DatasetQuery) FirstX(ctx context.Context) *Dataset {
 // Returns a *NotFoundError when no Dataset ID was found.
 func (dq *DatasetQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = dq.Limit(1).IDs(setContextOp(ctx, dq.ctx, "FirstID")); err != nil {
+	if ids, err = dq.Limit(1).IDs(setContextOp(ctx, dq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -132,7 +133,7 @@ func (dq *DatasetQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one Dataset entity is found.
 // Returns a *NotFoundError when no Dataset entities are found.
 func (dq *DatasetQuery) Only(ctx context.Context) (*Dataset, error) {
-	nodes, err := dq.Limit(2).All(setContextOp(ctx, dq.ctx, "Only"))
+	nodes, err := dq.Limit(2).All(setContextOp(ctx, dq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,7 @@ func (dq *DatasetQuery) OnlyX(ctx context.Context) *Dataset {
 // Returns a *NotFoundError when no entities are found.
 func (dq *DatasetQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = dq.Limit(2).IDs(setContextOp(ctx, dq.ctx, "OnlyID")); err != nil {
+	if ids, err = dq.Limit(2).IDs(setContextOp(ctx, dq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -185,7 +186,7 @@ func (dq *DatasetQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of Datasets.
 func (dq *DatasetQuery) All(ctx context.Context) ([]*Dataset, error) {
-	ctx = setContextOp(ctx, dq.ctx, "All")
+	ctx = setContextOp(ctx, dq.ctx, ent.OpQueryAll)
 	if err := dq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func (dq *DatasetQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if dq.ctx.Unique == nil && dq.path != nil {
 		dq.Unique(true)
 	}
-	ctx = setContextOp(ctx, dq.ctx, "IDs")
+	ctx = setContextOp(ctx, dq.ctx, ent.OpQueryIDs)
 	if err = dq.Select(dataset.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -225,7 +226,7 @@ func (dq *DatasetQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (dq *DatasetQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, dq.ctx, "Count")
+	ctx = setContextOp(ctx, dq.ctx, ent.OpQueryCount)
 	if err := dq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -243,7 +244,7 @@ func (dq *DatasetQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (dq *DatasetQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, dq.ctx, "Exist")
+	ctx = setContextOp(ctx, dq.ctx, ent.OpQueryExist)
 	switch _, err := dq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -277,8 +278,9 @@ func (dq *DatasetQuery) Clone() *DatasetQuery {
 		predicates:      append([]predicate.Dataset{}, dq.predicates...),
 		withDatasetroot: dq.withDatasetroot.Clone(),
 		// clone intermediate query.
-		sql:  dq.sql.Clone(),
-		path: dq.path,
+		sql:       dq.sql.Clone(),
+		path:      dq.path,
+		modifiers: append([]func(*sql.Selector){}, dq.modifiers...),
 	}
 }
 
@@ -552,7 +554,7 @@ func (dgb *DatasetGroupBy) Aggregate(fns ...AggregateFunc) *DatasetGroupBy {
 
 // Scan applies the selector query and scans the result into the given value.
 func (dgb *DatasetGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, dgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, dgb.build.ctx, ent.OpQueryGroupBy)
 	if err := dgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -600,7 +602,7 @@ func (ds *DatasetSelect) Aggregate(fns ...AggregateFunc) *DatasetSelect {
 
 // Scan applies the selector query and scans the result into the given value.
 func (ds *DatasetSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, ds.ctx, "Select")
+	ctx = setContextOp(ctx, ds.ctx, ent.OpQuerySelect)
 	if err := ds.prepareQuery(ctx); err != nil {
 		return err
 	}

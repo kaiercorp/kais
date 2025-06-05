@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -86,7 +87,7 @@ func (drq *DatasetRootQuery) QueryDatasets() *DatasetQuery {
 // First returns the first DatasetRoot entity from the query.
 // Returns a *NotFoundError when no DatasetRoot was found.
 func (drq *DatasetRootQuery) First(ctx context.Context) (*DatasetRoot, error) {
-	nodes, err := drq.Limit(1).All(setContextOp(ctx, drq.ctx, "First"))
+	nodes, err := drq.Limit(1).All(setContextOp(ctx, drq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (drq *DatasetRootQuery) FirstX(ctx context.Context) *DatasetRoot {
 // Returns a *NotFoundError when no DatasetRoot ID was found.
 func (drq *DatasetRootQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = drq.Limit(1).IDs(setContextOp(ctx, drq.ctx, "FirstID")); err != nil {
+	if ids, err = drq.Limit(1).IDs(setContextOp(ctx, drq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -132,7 +133,7 @@ func (drq *DatasetRootQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one DatasetRoot entity is found.
 // Returns a *NotFoundError when no DatasetRoot entities are found.
 func (drq *DatasetRootQuery) Only(ctx context.Context) (*DatasetRoot, error) {
-	nodes, err := drq.Limit(2).All(setContextOp(ctx, drq.ctx, "Only"))
+	nodes, err := drq.Limit(2).All(setContextOp(ctx, drq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,7 @@ func (drq *DatasetRootQuery) OnlyX(ctx context.Context) *DatasetRoot {
 // Returns a *NotFoundError when no entities are found.
 func (drq *DatasetRootQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = drq.Limit(2).IDs(setContextOp(ctx, drq.ctx, "OnlyID")); err != nil {
+	if ids, err = drq.Limit(2).IDs(setContextOp(ctx, drq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -185,7 +186,7 @@ func (drq *DatasetRootQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of DatasetRoots.
 func (drq *DatasetRootQuery) All(ctx context.Context) ([]*DatasetRoot, error) {
-	ctx = setContextOp(ctx, drq.ctx, "All")
+	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryAll)
 	if err := drq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func (drq *DatasetRootQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if drq.ctx.Unique == nil && drq.path != nil {
 		drq.Unique(true)
 	}
-	ctx = setContextOp(ctx, drq.ctx, "IDs")
+	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryIDs)
 	if err = drq.Select(datasetroot.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -225,7 +226,7 @@ func (drq *DatasetRootQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (drq *DatasetRootQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, drq.ctx, "Count")
+	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryCount)
 	if err := drq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -243,7 +244,7 @@ func (drq *DatasetRootQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (drq *DatasetRootQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, drq.ctx, "Exist")
+	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryExist)
 	switch _, err := drq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -277,8 +278,9 @@ func (drq *DatasetRootQuery) Clone() *DatasetRootQuery {
 		predicates:   append([]predicate.DatasetRoot{}, drq.predicates...),
 		withDatasets: drq.withDatasets.Clone(),
 		// clone intermediate query.
-		sql:  drq.sql.Clone(),
-		path: drq.path,
+		sql:       drq.sql.Clone(),
+		path:      drq.path,
+		modifiers: append([]func(*sql.Selector){}, drq.modifiers...),
 	}
 }
 
@@ -545,7 +547,7 @@ func (drgb *DatasetRootGroupBy) Aggregate(fns ...AggregateFunc) *DatasetRootGrou
 
 // Scan applies the selector query and scans the result into the given value.
 func (drgb *DatasetRootGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, drgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, drgb.build.ctx, ent.OpQueryGroupBy)
 	if err := drgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -593,7 +595,7 @@ func (drs *DatasetRootSelect) Aggregate(fns ...AggregateFunc) *DatasetRootSelect
 
 // Scan applies the selector query and scans the result into the given value.
 func (drs *DatasetRootSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, drs.ctx, "Select")
+	ctx = setContextOp(ctx, drs.ctx, ent.OpQuerySelect)
 	if err := drs.prepareQuery(ctx); err != nil {
 		return err
 	}

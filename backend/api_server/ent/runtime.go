@@ -10,6 +10,7 @@ import (
 	"api_server/ent/enginelog"
 	"api_server/ent/gpu"
 	"api_server/ent/hyperparamshistory"
+	"api_server/ent/menu"
 	"api_server/ent/modeling"
 	"api_server/ent/modelingdetails"
 	"api_server/ent/modelingmodels"
@@ -167,6 +168,20 @@ func init() {
 	hyperparamshistoryDescCreatedAt := hyperparamshistoryFields[6].Descriptor()
 	// hyperparamshistory.DefaultCreatedAt holds the default value on creation for the created_at field.
 	hyperparamshistory.DefaultCreatedAt = hyperparamshistoryDescCreatedAt.Default.(func() time.Time)
+	menuFields := schema.Menu{}.Fields()
+	_ = menuFields
+	// menuDescIsUse is the schema descriptor for is_use field.
+	menuDescIsUse := menuFields[4].Descriptor()
+	// menu.DefaultIsUse holds the default value on creation for the is_use field.
+	menu.DefaultIsUse = menuDescIsUse.Default.(bool)
+	// menuDescIsTitle is the schema descriptor for is_title field.
+	menuDescIsTitle := menuFields[5].Descriptor()
+	// menu.DefaultIsTitle holds the default value on creation for the is_title field.
+	menu.DefaultIsTitle = menuDescIsTitle.Default.(bool)
+	// menuDescGroup is the schema descriptor for group field.
+	menuDescGroup := menuFields[8].Descriptor()
+	// menu.DefaultGroup holds the default value on creation for the group field.
+	menu.DefaultGroup = menuDescGroup.Default.(int)
 	modelingFields := schema.Modeling{}.Fields()
 	_ = modelingFields
 	// modelingDescLocalID is the schema descriptor for local_id field.

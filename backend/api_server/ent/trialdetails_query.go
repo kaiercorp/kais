@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,7 +62,7 @@ func (tdq *TrialDetailsQuery) Order(o ...trialdetails.OrderOption) *TrialDetails
 // First returns the first TrialDetails entity from the query.
 // Returns a *NotFoundError when no TrialDetails was found.
 func (tdq *TrialDetailsQuery) First(ctx context.Context) (*TrialDetails, error) {
-	nodes, err := tdq.Limit(1).All(setContextOp(ctx, tdq.ctx, "First"))
+	nodes, err := tdq.Limit(1).All(setContextOp(ctx, tdq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (tdq *TrialDetailsQuery) FirstX(ctx context.Context) *TrialDetails {
 // Returns a *NotFoundError when no TrialDetails ID was found.
 func (tdq *TrialDetailsQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = tdq.Limit(1).IDs(setContextOp(ctx, tdq.ctx, "FirstID")); err != nil {
+	if ids, err = tdq.Limit(1).IDs(setContextOp(ctx, tdq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -107,7 +108,7 @@ func (tdq *TrialDetailsQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one TrialDetails entity is found.
 // Returns a *NotFoundError when no TrialDetails entities are found.
 func (tdq *TrialDetailsQuery) Only(ctx context.Context) (*TrialDetails, error) {
-	nodes, err := tdq.Limit(2).All(setContextOp(ctx, tdq.ctx, "Only"))
+	nodes, err := tdq.Limit(2).All(setContextOp(ctx, tdq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (tdq *TrialDetailsQuery) OnlyX(ctx context.Context) *TrialDetails {
 // Returns a *NotFoundError when no entities are found.
 func (tdq *TrialDetailsQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = tdq.Limit(2).IDs(setContextOp(ctx, tdq.ctx, "OnlyID")); err != nil {
+	if ids, err = tdq.Limit(2).IDs(setContextOp(ctx, tdq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -160,7 +161,7 @@ func (tdq *TrialDetailsQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of TrialDetailsSlice.
 func (tdq *TrialDetailsQuery) All(ctx context.Context) ([]*TrialDetails, error) {
-	ctx = setContextOp(ctx, tdq.ctx, "All")
+	ctx = setContextOp(ctx, tdq.ctx, ent.OpQueryAll)
 	if err := tdq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -182,7 +183,7 @@ func (tdq *TrialDetailsQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if tdq.ctx.Unique == nil && tdq.path != nil {
 		tdq.Unique(true)
 	}
-	ctx = setContextOp(ctx, tdq.ctx, "IDs")
+	ctx = setContextOp(ctx, tdq.ctx, ent.OpQueryIDs)
 	if err = tdq.Select(trialdetails.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -200,7 +201,7 @@ func (tdq *TrialDetailsQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (tdq *TrialDetailsQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, tdq.ctx, "Count")
+	ctx = setContextOp(ctx, tdq.ctx, ent.OpQueryCount)
 	if err := tdq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -218,7 +219,7 @@ func (tdq *TrialDetailsQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (tdq *TrialDetailsQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, tdq.ctx, "Exist")
+	ctx = setContextOp(ctx, tdq.ctx, ent.OpQueryExist)
 	switch _, err := tdq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -251,8 +252,9 @@ func (tdq *TrialDetailsQuery) Clone() *TrialDetailsQuery {
 		inters:     append([]Interceptor{}, tdq.inters...),
 		predicates: append([]predicate.TrialDetails{}, tdq.predicates...),
 		// clone intermediate query.
-		sql:  tdq.sql.Clone(),
-		path: tdq.path,
+		sql:       tdq.sql.Clone(),
+		path:      tdq.path,
+		modifiers: append([]func(*sql.Selector){}, tdq.modifiers...),
 	}
 }
 
@@ -465,7 +467,7 @@ func (tdgb *TrialDetailsGroupBy) Aggregate(fns ...AggregateFunc) *TrialDetailsGr
 
 // Scan applies the selector query and scans the result into the given value.
 func (tdgb *TrialDetailsGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, tdgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, tdgb.build.ctx, ent.OpQueryGroupBy)
 	if err := tdgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -513,7 +515,7 @@ func (tds *TrialDetailsSelect) Aggregate(fns ...AggregateFunc) *TrialDetailsSele
 
 // Scan applies the selector query and scans the result into the given value.
 func (tds *TrialDetailsSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, tds.ctx, "Select")
+	ctx = setContextOp(ctx, tds.ctx, ent.OpQuerySelect)
 	if err := tds.prepareQuery(ctx); err != nil {
 		return err
 	}

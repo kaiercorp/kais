@@ -18,6 +18,7 @@ import (
 	"api_server/ent/enginelog"
 	"api_server/ent/gpu"
 	"api_server/ent/hyperparamshistory"
+	"api_server/ent/menu"
 	"api_server/ent/modeling"
 	"api_server/ent/modelingdetails"
 	"api_server/ent/modelingmodels"
@@ -57,6 +58,8 @@ type Client struct {
 	Gpu *GpuClient
 	// HyperParamsHistory is the client for interacting with the HyperParamsHistory builders.
 	HyperParamsHistory *HyperParamsHistoryClient
+	// Menu is the client for interacting with the Menu builders.
+	Menu *MenuClient
 	// Modeling is the client for interacting with the Modeling builders.
 	Modeling *ModelingClient
 	// ModelingDetails is the client for interacting with the ModelingDetails builders.
@@ -97,6 +100,7 @@ func (c *Client) init() {
 	c.EngineLog = NewEngineLogClient(c.config)
 	c.Gpu = NewGpuClient(c.config)
 	c.HyperParamsHistory = NewHyperParamsHistoryClient(c.config)
+	c.Menu = NewMenuClient(c.config)
 	c.Modeling = NewModelingClient(c.config)
 	c.ModelingDetails = NewModelingDetailsClient(c.config)
 	c.ModelingModels = NewModelingModelsClient(c.config)
@@ -207,6 +211,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		EngineLog:          NewEngineLogClient(cfg),
 		Gpu:                NewGpuClient(cfg),
 		HyperParamsHistory: NewHyperParamsHistoryClient(cfg),
+		Menu:               NewMenuClient(cfg),
 		Modeling:           NewModelingClient(cfg),
 		ModelingDetails:    NewModelingDetailsClient(cfg),
 		ModelingModels:     NewModelingModelsClient(cfg),
@@ -244,6 +249,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		EngineLog:          NewEngineLogClient(cfg),
 		Gpu:                NewGpuClient(cfg),
 		HyperParamsHistory: NewHyperParamsHistoryClient(cfg),
+		Menu:               NewMenuClient(cfg),
 		Modeling:           NewModelingClient(cfg),
 		ModelingDetails:    NewModelingDetailsClient(cfg),
 		ModelingModels:     NewModelingModelsClient(cfg),
@@ -285,7 +291,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Configuration, c.Dataset, c.DatasetRoot, c.Device, c.EngineLog, c.Gpu,
-		c.HyperParamsHistory, c.Modeling, c.ModelingDetails, c.ModelingModels,
+		c.HyperParamsHistory, c.Menu, c.Modeling, c.ModelingDetails, c.ModelingModels,
 		c.Project, c.Task, c.Trial, c.TrialDetails, c.TrialStatus, c.User, c.UserGroup,
 		c.UserProject,
 	} {
@@ -298,7 +304,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Configuration, c.Dataset, c.DatasetRoot, c.Device, c.EngineLog, c.Gpu,
-		c.HyperParamsHistory, c.Modeling, c.ModelingDetails, c.ModelingModels,
+		c.HyperParamsHistory, c.Menu, c.Modeling, c.ModelingDetails, c.ModelingModels,
 		c.Project, c.Task, c.Trial, c.TrialDetails, c.TrialStatus, c.User, c.UserGroup,
 		c.UserProject,
 	} {
@@ -323,6 +329,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Gpu.mutate(ctx, m)
 	case *HyperParamsHistoryMutation:
 		return c.HyperParamsHistory.mutate(ctx, m)
+	case *MenuMutation:
+		return c.Menu.mutate(ctx, m)
 	case *ModelingMutation:
 		return c.Modeling.mutate(ctx, m)
 	case *ModelingDetailsMutation:
@@ -1342,6 +1350,171 @@ func (c *HyperParamsHistoryClient) mutate(ctx context.Context, m *HyperParamsHis
 		return (&HyperParamsHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown HyperParamsHistory mutation op: %q", m.Op())
+	}
+}
+
+// MenuClient is a client for the Menu schema.
+type MenuClient struct {
+	config
+}
+
+// NewMenuClient returns a client for the Menu from the given config.
+func NewMenuClient(c config) *MenuClient {
+	return &MenuClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `menu.Hooks(f(g(h())))`.
+func (c *MenuClient) Use(hooks ...Hook) {
+	c.hooks.Menu = append(c.hooks.Menu, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `menu.Intercept(f(g(h())))`.
+func (c *MenuClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Menu = append(c.inters.Menu, interceptors...)
+}
+
+// Create returns a builder for creating a Menu entity.
+func (c *MenuClient) Create() *MenuCreate {
+	mutation := newMenuMutation(c.config, OpCreate)
+	return &MenuCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Menu entities.
+func (c *MenuClient) CreateBulk(builders ...*MenuCreate) *MenuCreateBulk {
+	return &MenuCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MenuClient) MapCreateBulk(slice any, setFunc func(*MenuCreate, int)) *MenuCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MenuCreateBulk{err: fmt.Errorf("calling to MenuClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MenuCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MenuCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Menu.
+func (c *MenuClient) Update() *MenuUpdate {
+	mutation := newMenuMutation(c.config, OpUpdate)
+	return &MenuUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MenuClient) UpdateOne(m *Menu) *MenuUpdateOne {
+	mutation := newMenuMutation(c.config, OpUpdateOne, withMenu(m))
+	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MenuClient) UpdateOneID(id string) *MenuUpdateOne {
+	mutation := newMenuMutation(c.config, OpUpdateOne, withMenuID(id))
+	return &MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Menu.
+func (c *MenuClient) Delete() *MenuDelete {
+	mutation := newMenuMutation(c.config, OpDelete)
+	return &MenuDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MenuClient) DeleteOne(m *Menu) *MenuDeleteOne {
+	return c.DeleteOneID(m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MenuClient) DeleteOneID(id string) *MenuDeleteOne {
+	builder := c.Delete().Where(menu.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MenuDeleteOne{builder}
+}
+
+// Query returns a query builder for Menu.
+func (c *MenuClient) Query() *MenuQuery {
+	return &MenuQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMenu},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Menu entity by its id.
+func (c *MenuClient) Get(ctx context.Context, id string) (*Menu, error) {
+	return c.Query().Where(menu.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MenuClient) GetX(ctx context.Context, id string) *Menu {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryParent queries the parent edge of a Menu.
+func (c *MenuClient) QueryParent(m *Menu) *MenuQuery {
+	query := (&MenuClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menu.Table, menu.FieldID, id),
+			sqlgraph.To(menu.Table, menu.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, menu.ParentTable, menu.ParentColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChildren queries the children edge of a Menu.
+func (c *MenuClient) QueryChildren(m *Menu) *MenuQuery {
+	query := (&MenuClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(menu.Table, menu.FieldID, id),
+			sqlgraph.To(menu.Table, menu.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, menu.ChildrenTable, menu.ChildrenColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MenuClient) Hooks() []Hook {
+	return c.hooks.Menu
+}
+
+// Interceptors returns the client interceptors.
+func (c *MenuClient) Interceptors() []Interceptor {
+	return c.inters.Menu
+}
+
+func (c *MenuClient) mutate(ctx context.Context, m *MenuMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MenuCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MenuUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MenuUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MenuDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Menu mutation op: %q", m.Op())
 	}
 }
 
@@ -3004,13 +3177,13 @@ func (c *UserProjectClient) mutate(ctx context.Context, m *UserProjectMutation) 
 type (
 	hooks struct {
 		Configuration, Dataset, DatasetRoot, Device, EngineLog, Gpu, HyperParamsHistory,
-		Modeling, ModelingDetails, ModelingModels, Project, Task, Trial, TrialDetails,
-		TrialStatus, User, UserGroup, UserProject []ent.Hook
+		Menu, Modeling, ModelingDetails, ModelingModels, Project, Task, Trial,
+		TrialDetails, TrialStatus, User, UserGroup, UserProject []ent.Hook
 	}
 	inters struct {
 		Configuration, Dataset, DatasetRoot, Device, EngineLog, Gpu, HyperParamsHistory,
-		Modeling, ModelingDetails, ModelingModels, Project, Task, Trial, TrialDetails,
-		TrialStatus, User, UserGroup, UserProject []ent.Interceptor
+		Menu, Modeling, ModelingDetails, ModelingModels, Project, Task, Trial,
+		TrialDetails, TrialStatus, User, UserGroup, UserProject []ent.Interceptor
 	}
 )
 

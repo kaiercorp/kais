@@ -155,6 +155,32 @@ var (
 		Columns:    HyperParamsHistoryColumns,
 		PrimaryKey: []*schema.Column{HyperParamsHistoryColumns[0]},
 	}
+	// MenuColumns holds the columns for the "menu" table.
+	MenuColumns = []*schema.Column{
+		{Name: "menu_key", Type: field.TypeString, Unique: true},
+		{Name: "label", Type: field.TypeString},
+		{Name: "icon", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString, Nullable: true},
+		{Name: "is_use", Type: field.TypeBool, Nullable: true, Default: true},
+		{Name: "is_title", Type: field.TypeBool, Nullable: true, Default: false},
+		{Name: "menu_order", Type: field.TypeInt},
+		{Name: "group", Type: field.TypeInt, Default: 2},
+		{Name: "parent_key", Type: field.TypeString, Nullable: true},
+	}
+	// MenuTable holds the schema information for the "menu" table.
+	MenuTable = &schema.Table{
+		Name:       "menu",
+		Columns:    MenuColumns,
+		PrimaryKey: []*schema.Column{MenuColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "menu_menu_children",
+				Columns:    []*schema.Column{MenuColumns[8]},
+				RefColumns: []*schema.Column{MenuColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// ModelingColumns holds the columns for the "modeling" table.
 	ModelingColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -421,6 +447,7 @@ var (
 		EnginelogTable,
 		GpuTable,
 		HyperParamsHistoryTable,
+		MenuTable,
 		ModelingTable,
 		ModelingDetailsTable,
 		ModelingModelsTable,
@@ -458,6 +485,10 @@ func init() {
 	}
 	HyperParamsHistoryTable.Annotation = &entsql.Annotation{
 		Table: "hyper_params_history",
+	}
+	MenuTable.ForeignKeys[0].RefTable = MenuTable
+	MenuTable.Annotation = &entsql.Annotation{
+		Table: "menu",
 	}
 	ModelingTable.ForeignKeys[0].RefTable = TaskTable
 	ModelingTable.Annotation = &entsql.Annotation{

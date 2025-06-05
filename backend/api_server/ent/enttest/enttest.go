@@ -3,8 +3,9 @@
 package enttest
 
 import (
-	"api_server/ent"
 	"context"
+
+	"api_server/ent"
 	// required by schema hooks.
 	_ "api_server/ent/runtime"
 

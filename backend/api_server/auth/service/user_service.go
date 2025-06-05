@@ -10,6 +10,7 @@ import (
 
 type IUserService interface {
 	ReadUserGroup(token string) int
+	GetUserGroup(token string) int
 }
 
 type UserService struct {
@@ -34,6 +35,15 @@ func NewUser(dao repo.IAuthDAO) *UserService {
 
 func (svc *UserService) ReadUserGroup(token string) int {
 	user, r := svc.dao.SelectByToken(svc.ctx, token)
+	if r != nil || user.Token == "" {
+		return 2
+	}
+
+	return user.Group
+}
+
+func (svc *UserService) GetUserGroup(token string) int {
+	user, r := svc.dao.SelectUserByToken(svc.ctx, token)
 	if r != nil || user.Token == "" {
 		return 2
 	}

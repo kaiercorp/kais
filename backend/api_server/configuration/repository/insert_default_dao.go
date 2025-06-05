@@ -3,6 +3,7 @@ package repository
 import (
 	"api_server/ent"
 	"api_server/ent/configuration"
+	"api_server/ent/menu"
 	"api_server/ent/user"
 	"api_server/ent/usergroup"
 	"api_server/utils"
@@ -39,6 +40,7 @@ func (dao *ConfigInitDAO) InsertDefaultValues(ctx context.Context, version strin
 	dao.insertUserConfigs(ctx, version)
 	dao.insertUserGroup(ctx)
 	dao.insertMasterUser(ctx)
+	dao.insertMenu(ctx)
 }
 
 func (dao *ConfigInitDAO) insertUserGroup(ctx context.Context) {
@@ -130,6 +132,82 @@ func (dao *ConfigInitDAO) insertUserConfigs(ctx context.Context, version string)
 
 	if err != nil {
 		println("INIT auth config: ", err.Error())
+		return
+	}
+}
+
+func (dao *ConfigInitDAO) insertMenu(ctx context.Context) {
+	err := dao.dbms.Menu.CreateBulk(
+		dao.dbms.Menu.Create().SetID("home").
+			SetLabel("Home").SetIcon("mdi mdi-home").
+			SetURL("/dashboard").SetIsUse(true).SetIsTitle(false).SetMenuOrder(1).SetGroup(2),
+		dao.dbms.Menu.Create().SetID("vision").
+			SetLabel("Vision data").SetIcon("mdi mdi-television-guide").
+			SetURL("").SetIsUse(true).SetIsTitle(false).SetMenuOrder(2).SetGroup(2),
+		dao.dbms.Menu.Create().SetID(utils.JOB_TYPE_VISION_CLS_SL).
+			SetLabel("Single Label Classification").SetIcon("mdi mdi-book-settings").
+			SetURL("/vision/vcls-sl").SetIsUse(true).SetIsTitle(false).SetMenuOrder(1).
+			SetParentKey("vision").SetGroup(2),
+		dao.dbms.Menu.Create().SetID(utils.JOB_TYPE_VISION_CLS_ML).
+			SetLabel("Multi Label Classification").SetIcon("mdi mdi-book-settings").
+			SetURL("/vision/vcls-ml").SetIsUse(true).SetIsTitle(false).SetMenuOrder(2).
+			SetParentKey("vision").SetGroup(2),
+		dao.dbms.Menu.Create().SetID(utils.JOB_TYPE_VISION_AD).
+			SetLabel("Anomaly Detection").SetIcon("mdi mdi-book-settings").
+			SetURL("/vision/vad").SetIsUse(false).SetIsTitle(false).SetMenuOrder(3).
+			SetParentKey("vision").SetGroup(2),
+		dao.dbms.Menu.Create().SetID("table").
+			SetLabel("Table data").SetIcon("mdi mdi-table").
+			SetURL("").SetIsUse(false).SetIsTitle(false).SetMenuOrder(3).SetGroup(2),
+		dao.dbms.Menu.Create().SetID(utils.JOB_TYPE_TABLE_CLS).
+			SetLabel("Classification").SetIcon("mdi mdi-book-settings").
+			SetURL("/table/tcls").SetIsUse(true).SetIsTitle(false).SetMenuOrder(1).
+			SetParentKey("table").SetGroup(2),
+		dao.dbms.Menu.Create().SetID(utils.JOB_TYPE_TABLE_REG).
+			SetLabel("Regression").SetIcon("mdi mdi-book-settings").
+			SetURL("/table/treg").SetIsUse(true).SetIsTitle(false).SetMenuOrder(2).
+			SetParentKey("table").SetGroup(2),
+		dao.dbms.Menu.Create().SetID("ts").
+			SetLabel("Time-series data").SetIcon("mdi mdi-clock-time-eight-outline").
+			SetURL("").SetIsUse(false).SetIsTitle(false).SetMenuOrder(4).SetGroup(2),
+		dao.dbms.Menu.Create().SetID(utils.JOB_TYPE_TS_AD).
+			SetLabel("Anomaly Detection").SetIcon("mdi mdi-book-settings").
+			SetURL("/ts/ad").SetIsUse(true).SetIsTitle(false).SetMenuOrder(1).
+			SetParentKey("ts").SetGroup(2),
+		dao.dbms.Menu.Create().SetID("dataset").
+			SetLabel("Dataset Management").SetIcon("mdi mdi-folder-check-outline").
+			SetURL("/dataset").SetIsUse(true).SetIsTitle(false).SetMenuOrder(5).SetGroup(2),
+		dao.dbms.Menu.Create().SetID("configuration").
+			SetLabel("Configuration").SetIcon("mdi mdi-cog").
+			SetURL("").SetIsUse(true).SetIsTitle(false).SetMenuOrder(9).SetGroup(2),
+		dao.dbms.Menu.Create().SetID("user").
+			SetLabel("User").SetIcon("mdi mdi-cog").
+			SetURL("/config/user").SetIsUse(true).SetIsTitle(false).SetMenuOrder(1).
+			SetParentKey("configuration").SetGroup(0),
+		dao.dbms.Menu.Create().SetID("setting").
+			SetLabel("Setting").SetIcon("mdi mdi-cog").
+			SetURL("/config/setting").SetIsUse(true).SetIsTitle(false).SetMenuOrder(2).
+			SetParentKey("configuration").SetGroup(2),
+		dao.dbms.Menu.Create().SetID("system").
+			SetLabel("System").SetIcon("mdi mdi-cog").
+			SetURL("/config/system").SetIsUse(true).SetIsTitle(false).SetMenuOrder(3).
+			SetParentKey("configuration").SetGroup(0),
+		dao.dbms.Menu.Create().SetID("menus").
+			SetLabel("Menu").SetIcon("mdi mdi-cog").
+			SetURL("/config/menu").SetIsUse(true).SetIsTitle(false).SetMenuOrder(4).
+			SetParentKey("configuration").SetGroup(1),
+		dao.dbms.Menu.Create().SetID("device").
+			SetLabel("Device Management").SetIcon("mdi mdi-vector-circle").
+			SetURL("/device").SetIsUse(true).SetIsTitle(false).SetMenuOrder(8).SetGroup(2),
+	).
+		OnConflict(
+			sql.ConflictColumns(menu.FieldID),
+		).
+		UpdateURL().
+		Exec(ctx)
+
+	if err != nil {
+		println("INIT Route config: ", err.Error())
 		return
 	}
 }

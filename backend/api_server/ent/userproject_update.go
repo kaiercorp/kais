@@ -137,7 +137,7 @@ func (upu *UserProjectUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (upu *UserProjectUpdate) check() error {
-	if _, ok := upu.mutation.ProjectID(); upu.mutation.ProjectCleared() && !ok {
+	if upu.mutation.ProjectCleared() && len(upu.mutation.ProjectIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserProject.project"`)
 	}
 	return nil
@@ -344,7 +344,7 @@ func (upuo *UserProjectUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (upuo *UserProjectUpdateOne) check() error {
-	if _, ok := upuo.mutation.ProjectID(); upuo.mutation.ProjectCleared() && !ok {
+	if upuo.mutation.ProjectCleared() && len(upuo.mutation.ProjectIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserProject.project"`)
 	}
 	return nil

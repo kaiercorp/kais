@@ -47,12 +47,10 @@ type GpuEdges struct {
 // DeviceOrErr returns the Device value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e GpuEdges) DeviceOrErr() (*Device, error) {
-	if e.loadedTypes[0] {
-		if e.Device == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: device.Label}
-		}
+	if e.Device != nil {
 		return e.Device, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: device.Label}
 	}
 	return nil, &NotLoadedError{edge: "device"}
 }

@@ -151,7 +151,7 @@ func (upc *UserProjectCreate) check() error {
 	if _, ok := upc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "UserProject.created_at"`)}
 	}
-	if _, ok := upc.mutation.ProjectID(); !ok {
+	if len(upc.mutation.ProjectIDs()) == 0 {
 		return &ValidationError{Name: "project", err: errors.New(`ent: missing required edge "UserProject.project"`)}
 	}
 	return nil
